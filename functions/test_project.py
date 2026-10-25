@@ -182,7 +182,7 @@ def test_LReLU_der():
     expected = np.array([1.0, 1.0, -0.01, 1.0, 1.0, -0.01, -0.01, 1.0, -0.01, -0.01])
     computed = LReLU_der(z)
 
-    msg = f"Computed ReLU_der(z) {computed} does not equal expected ReLU_der(z) {expected}"
+    msg = f"Computed LReLU_der(z) {computed} does not equal expected LReLU_der(z) {expected}"
     assert np.sum(abs(expected - computed)) < 1e-12, msg
 
 def test_sigmoid():

@@ -46,12 +46,7 @@ def LReLU_jax(z: np.ndarray, alpha: float) -> np.ndarray:
     This function should only be used for calculating gradients with jax,
     as it can be slower than the version that uses numpy instead.
     """
-    positive = z >= 0
-    negative = ~positive
-
-    a = jnp.empty_like(z, dtype=float)
-    a = a.at[positive].set(z[positive]) + a.at[negative].set(alpha*z[negative])
-    return a
+    return jnp.where(z > 0, z, alpha*z)
 
 def sigmoid_jax(z: jnp.ndarray) -> jnp.ndarray:
     """
@@ -157,13 +152,7 @@ def LReLU(z: np.ndarray, alpha: float = 0.01) -> np.ndarray:
     This function should not be used for computing gradients with jax,
     where LReLU_jax should be used instead.
     """
-    positive = z >= 0
-    negative = ~positive
-
-    a = np.empty_like(z, dtype=float)
-    a[positive] = z[positive]
-    a[negative] = alpha*z[negative]
-    return a
+    return np.where(z > 0, z, alpha*z)
 
 def LReLU_der(z: np.ndarray, alpha: float = 0.01) -> np.ndarray:
     """
@@ -182,13 +171,7 @@ def LReLU_der(z: np.ndarray, alpha: float = 0.01) -> np.ndarray:
     da_dz : ndarray
         Derivative of activated layer output
     """
-    positive = z >= 0
-    negative = ~positive
-
-    a = np.empty_like(z, dtype=float)
-    a[positive] = 1.0
-    a[negative] = -alpha
-    return a
+    return np.where(z > 0, 1.0, -alpha)
 
 def sigmoid(z: np.ndarray) -> np.ndarray:
     """
