@@ -5,7 +5,7 @@
 ### Part a)
 
 #### Backend
-- ~~Write python functions for cost, with gradients~~
+- ~~Write python functions for cost, with gradients~~.
 - Implement Sigmoid, ReLU and leaky ReLU functions with derivatives.
 
 #### Frontend
