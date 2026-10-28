@@ -4,7 +4,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 from sklearn.linear_model import Lasso, Ridge, LinearRegression
 
-def desent_OLS(X,y,theta_target, gamma, maxs, n, n_features, num_iters=1000):
+def descent_OLS(X,y,theta_target, gamma, maxs, n, n_features, num_iters=1000):
     distances_OLS = []
     theta_gdOLS = np.zeros(n_features)
     
@@ -22,7 +22,7 @@ def desent_OLS(X,y,theta_target, gamma, maxs, n, n_features, num_iters=1000):
             break
     return distances_OLS
 
-def desent_Ridge(X,y,theta_target, gamma, maxs, n, n_features, num_iters=1000):
+def descent_Ridge(X,y,theta_target, gamma, maxs, n, n_features, num_iters=1000):
     theta_gdRidge = np.zeros(n_features)
     distances_Ridge = []
     
