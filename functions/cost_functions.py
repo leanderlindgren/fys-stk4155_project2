@@ -1,4 +1,28 @@
 import numpy as np
+import jax.numpy as jnp
+
+def mse_jax(predict: np.ndarray, target: np.ndarray) -> float:
+    """
+    Mean square error of predictions against target.
+
+    Params
+    ------
+    predict : ndarray
+        Predictions
+    target : ndarray
+        Targets
+
+    Returns
+    -------
+    mse : float
+        Mean square error
+
+    Notes
+    -----
+    This function should only be used for calculating gradients with jax,
+    as it can be slower than the version that uses numpy instead.
+    """
+    return jnp.mean((predict - target)**2)
 
 def mse(predict: np.ndarray, target: np.ndarray) -> float:
     """
@@ -17,6 +41,24 @@ def mse(predict: np.ndarray, target: np.ndarray) -> float:
         Mean square error
     """
     return np.mean((predict - target)**2)
+
+def mse_der(predict: np.ndarray, target: np.ndarray) -> float:
+    """
+    Derivative of mean square error.
+
+    Params
+    ------
+    predict : ndarray
+        Predictions
+    target : ndarray
+        Targets
+
+    Returns
+    -------
+    mse_der : float
+        Derivative of mean square error
+    """
+    return (2/predict.size)*(predict - target)
 
 def mse_Lp(
         predict: np.ndarray,

@@ -1,6 +1,8 @@
 import numpy as np
 import jax
 import jax.numpy as jnp
+import sys
+sys.path.append("../")
 from functions.activation_functions import ReLU
 jax.config.update("jax_enable_x64", True)
 
@@ -179,9 +181,8 @@ class NeuralNetwork:
         layer_grads : list[tuple[ndarray, ndarray]]
             Gradients with respect to weights and biases for every layer
         """
-        activation_funcs = self.activation_funcs
         layers = self.layers_
-        layer_inputs, zs, predicts = self._feed_forward_saver(inputs, layers, activation_funcs)
+        layer_inputs, zs, predicts = self._feed_forward_saver(inputs)
 
         layer_grads = [() for layer in layers]
 
@@ -197,7 +198,7 @@ class NeuralNetwork:
                     dC_dz = predicts - targets
                 else:
                     dC_da = self.cost_der(predicts, targets)
-                    dC_dz = (dC_da * activation_der(z).T).T
+                    dC_dz = (dC_da * activation_der(z))
             else:
                 # For other layers we build on previous z derivative, as dC_da(i) = dC_dz(i+1) * dz(i+1)_da(i)
                 (W, b) = layers[i + 1]
