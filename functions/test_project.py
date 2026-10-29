@@ -487,6 +487,44 @@ def test_NN_compute_gradient():
     msg = f"Computed gradients of L2 cost {computed} do not equal expected gradients of L2 cost {expected}"
     assert s < 1e-12, msg
 
+def test_update_weights():
+    """
+    Test that the update_weights method of the
+    NeuralNetwork class correctly updates weights
+    """
+    # This test is really just an implementation of update_weights,
+    # but it exists so that if any future changes to
+    # update_weights breaks it, it will be caught.
+    rng = np.random.default_rng(2026)
+    n_layers = 5
+    gammas = [0.01, 0.1, 1]
+    network_input_size = rng.integers(1, 20, 1)[0]
+    layer_output_sizes = rng.integers(1, 20, n_layers)
+    layer_output_sizes[-1] = network_input_size
+    activation_funcs = [ReLU_jax, ReLU_jax, ReLU_jax, ReLU_jax, sigmoid_jax]
+    activation_ders = [ReLU_der, ReLU_der, ReLU_der, ReLU_der, sigmoid_der]
+
+    x = rng.normal(size=(100, network_input_size))
+    y = runge(x)
+
+    nn = NeuralNetwork(network_input_size, layer_output_sizes, activation_funcs, activation_ders, mse_jax, mse_der)
+    nn.layers_ = nn.create_layers(network_input_size, layer_output_sizes)
+    layer_grads = nn.compute_gradient(x, y)
+
+    for gamma in gammas:
+        expected = [
+            (W - gamma*dW, b - gamma*db)
+            for (W, b), (dW, db) in zip(nn.layers_, layer_grads)
+        ]
+        nn.update_weights(layer_grads, gamma)
+        computed = nn.layers_
+
+        s = sum([np.sum(abs(Wc - We)) + np.sum(abs(bc - be)) for (Wc, bc), (We, be) in zip(computed, expected)])
+
+        msg = f"Computed gradients of L2 cost {computed} do not equal expected gradients of L2 cost {expected}"
+        assert s < 1e-12, msg
+
+
 if __name__ == "__main__":
     test_mse()
     test_mse_der()
@@ -506,4 +544,5 @@ if __name__ == "__main__":
     test_NN_cost()
     test_NN__feed_forward_saver()
     test_NN_compute_gradient()
+    test_update_weights()
     print("All tests passed!")
