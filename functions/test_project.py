@@ -470,9 +470,10 @@ def test_NN_compute_gradient():
 
     msg = f"Computed gradients of L1 cost {computed} do not equal expected gradients of L1 cost {expected}"
     assert s < 1e-12, msg
-    
+
     computed = nn.compute_gradient(x, y, lam2=1.0)
     cost_grad = jax.grad(nn.jax_compliant_cost, argnums=0)
+    expected_old = expected
     expected = cost_grad(
         nn.layers_,
         x,

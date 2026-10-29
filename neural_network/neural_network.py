@@ -39,7 +39,7 @@ class NeuralNetwork:
             Number of inputs of the network
         layer_output_sizes : list[int]
             Ordered list of number of outputs per layer
-        
+
         Returns
         -------
         layers : list[tuple[ndarray]]
@@ -70,7 +70,7 @@ class NeuralNetwork:
         ------
         x : ndarray
             Inputs
-        
+
         Returns
         -------
         y : ndarray
@@ -104,7 +104,7 @@ class NeuralNetwork:
             L1 penalty parameter
         lam2 : float
             L2 penalty parameter
-        
+
         Returns
         -------
         cost : float
@@ -132,7 +132,7 @@ class NeuralNetwork:
         ------
         inputs : ndarray
             Inputs used to calculate predictions
-        
+
         Returns
         -------
         layer_inputs : list[ndarray]
@@ -175,7 +175,7 @@ class NeuralNetwork:
             L1 penalty parameter
         lam2 : float
             L2 penalty parameter
-        
+
         Returns
         -------
         layer_grads : list[tuple[ndarray, ndarray]]
@@ -255,12 +255,12 @@ class NeuralNetwork:
             Layers of the network
         inputs : ndarray
             Inputs used to calculate predictions
-        
+
         Returns
         -------
         predicts : ndarray
             Predictions
-        
+
         Notes
         -----
         Should be used with JAX
@@ -295,12 +295,12 @@ class NeuralNetwork:
             L1 penalty parameter
         lam2 : float
             L2 penalty parameter
-        
+
         Returns
         -------
         cost : float
             Cost/loss
-        
+
         Notes
         -----
         Should be used with JAX
@@ -308,10 +308,10 @@ class NeuralNetwork:
         predicts = self.jax_compliant_predict(layers, inputs)
         cost = self.cost_fun(predicts, targets)
         if lam1 > 0.0:
-            l1_penalty = lam1 * sum(jnp.sum(abs(W)) for (W, _) in self.layers_)
+            l1_penalty = lam1 * sum(jnp.sum(abs(W)) for (W, _) in layers)
             cost += l1_penalty
         if lam2 > 0.0:
-            l2_penalty = lam2 * sum(jnp.sum(W**2) for (W, _) in self.layers_)
+            l2_penalty = lam2 * sum(jnp.sum(W**2) for (W, _) in layers)
             cost += l2_penalty
         return cost
 
@@ -337,7 +337,7 @@ class NeuralNetwork:
             L1 penalty parameter
         lam2 : float
             L2 penalty parameter
-        
+
         Returns
         -------
         layer_grads : list[tuple[ndarray, ndarray]]
