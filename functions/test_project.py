@@ -8,6 +8,7 @@ from activation_functions import ReLU, ReLU_der, LReLU, LReLU_der, sigmoid, \
 import sys
 sys.path.append("../")
 from neural_network.neural_network import NeuralNetwork
+from neural_network.neural_network_regressor import NeuralNetworkRegressor
 from functions.runge import runge
 
 def test_mse():
@@ -524,6 +525,211 @@ def test_update_weights():
         msg = f"Computed gradients of L2 cost {computed} do not equal expected gradients of L2 cost {expected}"
         assert s < 1e-12, msg
 
+def test_NNR_split_minibatches():
+    """
+    Test that the split_minibatches method of the
+    NeuralNetworkRegressor class splits correctly
+    """
+    rng = np.random.default_rng(2026)
+    n = 10000
+    d = 10
+    outputs = 3
+    minibatch_size = 700
+    x = rng.normal(size=(n, d))
+    y = rng.normal(size=(n, outputs))
+
+    net = NeuralNetworkRegressor(d, [outputs], [ReLU], [ReLU_der], mse, mse_der, batch_size=minibatch_size)
+    minibatches = net.split_minibatches(x, y)
+
+    expected = n + minibatch_size - n%minibatch_size
+    computed = 0
+    for (inputs, targets) in minibatches:
+        msg = f"Inputs (shape {inputs.shape}) has different size than targets (shape {targets.shape})"
+        assert inputs.shape[0] == targets.shape[0], msg
+
+        msg = f"Minibatch inputs (shape {inputs.shape} has different number of features than expected {d})"
+        assert inputs.shape[1] == d, msg
+
+        msg = f"Minibatch targets (shape {targets.shape} has different number of outputs than expected {outputs})"
+        assert targets.shape[1] == outputs, msg
+
+        computed += inputs.shape[0]
+
+    msg = f"Computed sum of minibatch sizes {computed} does not equal expected {expected}"
+    assert expected == computed, msg
+
+def test_NNR_optimiser_step():
+    """
+    Test that the optimiser_step method of the
+    NeuralNetworkRegressor computes correct adjusted gradients
+    """
+    rng = np.random.default_rng(2026)
+    n = 10000
+    d = 10
+    gamma = 0.03
+    lam1 = 0.0
+    lam2 = 0.0
+    eps = 1e-8
+    outputs = 3
+    x = rng.normal(size=(n, d))
+    y = rng.normal(size=(n, outputs))
+
+    net = NeuralNetworkRegressor(d, [outputs], [ReLU], [ReLU_der], mse, mse_der, gamma=0.03)
+    net.nn_.initialize_layers()
+    layer_grads = net.nn_.compute_gradient(x, y, lam1, lam2)
+
+    # Plain gradient
+    state = {}
+    computed = net.optimiser_step(
+        layer_grads,
+        state,
+        3,
+        method="plain",
+    )
+    expected = [(gamma*dW, gamma*db) for (dW, db) in layer_grads]
+
+    s = sum([np.sum(abs(Wc - We)) + np.sum(abs(bc - be)) for (Wc, bc), (We, be) in zip(computed, expected)])
+
+    msg = f"Computed adjusted gradients {computed} do not equal expected adjusted gradients {expected}"
+    assert s < 1e-12, msg
+
+    # RMSProp gradient
+    rho = 0.99
+    rW = abs(rng.normal(size=(d, outputs)))
+    rb = abs(rng.normal(size=(outputs)))
+    state = {"rW_1": rW, "rb_1": rb}
+    rW = rho*rW + (1.0 - rho)*layer_grads[0][0]**2
+    rb = rho*rb + (1.0 - rho)*layer_grads[0][1]**2
+    computed = net.optimiser_step(
+        layer_grads,
+        state,
+        3,
+        method="rmsprop",
+    )
+    expected = [(gamma*dW/(np.sqrt(rW) + eps), gamma*db/(np.sqrt(rb) + eps)) for (dW, db) in layer_grads]
+
+    s = sum([np.sum(abs(Wc - We)) + np.sum(abs(bc - be)) for (Wc, bc), (We, be) in zip(computed, expected)])
+
+    msg = f"Computed adjusted gradients {computed} do not equal expected adjusted gradients {expected}"
+    assert s < 1e-12, msg
+
+    # Adam gradient
+    beta1 = 0.9
+    beta2 = 0.999
+    t = 3
+    mW = abs(rng.normal(size=(d, outputs)))
+    mb = abs(rng.normal(size=(outputs)))
+    rW = abs(rng.normal(size=(d, outputs)))
+    rb = abs(rng.normal(size=(outputs)))
+    state = {"rW_1": rW, "rb_1": rb, "mW_1": mW, "mb_1": mb}
+    mW = beta1*mW + (1.0 - beta1)*layer_grads[0][0]
+    mb = beta1*mb + (1.0 - beta1)*layer_grads[0][1]
+    rW = beta2*rW + (1.0 - beta2)*layer_grads[0][0]**2
+    rb = beta2*rb + (1.0 - beta2)*layer_grads[0][1]**2
+    computed = net.optimiser_step(
+        layer_grads,
+        state,
+        3,
+        method="adam",
+    )
+    mW_hat = mW/(1.0 - beta1**t)
+    mb_hat = mb/(1.0 - beta1**t)
+    rW_hat = rW/(1.0 - beta2**t)
+    rb_hat = rb/(1.0 - beta2**t)
+    expected = [(gamma*mW_hat/(np.sqrt(rW_hat) + eps), gamma*mb_hat/(np.sqrt(rb_hat) + eps))]
+
+    s = sum([np.sum(abs(Wc - We)) + np.sum(abs(bc - be)) for (Wc, bc), (We, be) in zip(computed, expected)])
+
+    msg = f"Computed adjusted gradients {computed} do not equal expected adjusted gradients {expected}"
+    assert s < 1e-12, msg
+
+def test_NNR_fit():
+    """
+    Test that the fit method of the NeuralNetworkRegressor
+    is able to approximate simple polynomials
+    """
+    rng = np.random.default_rng(2026)
+    n_train = 10000
+    n_test = 1000
+    d = 1
+    gamma = 0.1
+    lam1 = 0.0
+    lam2 = 0.0
+    outputs = 1
+    f = lambda x: x**2 - 3*x + 2
+    x_train = np.linspace(-1, 1, n_train).reshape(n_train, -1)
+    y_train = f(x_train)
+    x_test = np.linspace(-1, 1, n_test).reshape(n_test, -1)
+    expected = f(x_test)
+
+    I = lambda x: x
+    I_der = lambda x: np.ones_like(x)
+
+    # Plain gradient descent
+    net = NeuralNetworkRegressor(
+        d,
+        [50, 50, outputs],
+        [ReLU, ReLU, I],
+        [ReLU_der, ReLU_der, I_der],
+        mse,
+        mse_der,
+        gamma=gamma,
+        epochs=100,
+        batch_size=1000,
+        method="plain"
+    )
+    net.fit(x_train, y_train)
+    computed = net.predict(x_test)
+
+    err = np.mean((expected - computed)**2)
+
+    msg = f"Plain gradient descent gave MSE {err} not sufficiently low"
+    assert err < 1e-3, msg
+
+    # RMSProp gradient descent
+    gamma = 0.0003
+    net = NeuralNetworkRegressor(
+        d,
+        [50, 50, outputs],
+        [ReLU, ReLU, I],
+        [ReLU_der, ReLU_der, I_der],
+        mse,
+        mse_der,
+        gamma=gamma,
+        epochs=100,
+        batch_size=1000,
+        method="rmsprop"
+    )
+    net.fit(x_train, y_train)
+    computed = net.predict(x_test)
+
+    err = np.mean((expected - computed)**2)
+
+    msg = f"RMSProp gradient descent gave MSE {err} not sufficiently low"
+    assert err < 1e-3, msg
+
+    # Adam gradient descent
+    gamma = 0.03
+    net = NeuralNetworkRegressor(
+        d,
+        [50, 50, outputs],
+        [ReLU, ReLU, I],
+        [ReLU_der, ReLU_der, I_der],
+        mse,
+        mse_der,
+        gamma=gamma,
+        epochs=100,
+        batch_size=1000,
+        method="adam"
+    )
+    net.fit(x_train, y_train)
+    computed = net.predict(x_test)
+
+    err = np.mean((expected - computed)**2)
+
+    msg = f"Adam gradient descent gave MSE {err} not sufficiently low"
+    assert err < 1e-3, msg
+
 
 if __name__ == "__main__":
     test_mse()
@@ -545,4 +751,7 @@ if __name__ == "__main__":
     test_NN__feed_forward_saver()
     test_NN_compute_gradient()
     test_update_weights()
+    test_NNR_split_minibatches()
+    test_NNR_optimiser_step()
+    test_NNR_fit()
     print("All tests passed!")
