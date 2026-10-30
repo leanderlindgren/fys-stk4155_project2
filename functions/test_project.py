@@ -7,8 +7,8 @@ from activation_functions import ReLU, ReLU_der, LReLU, LReLU_der, sigmoid, \
         sigmoid_der, softmax, ReLU_jax, LReLU_jax, sigmoid_jax, softmax_jax
 import sys
 sys.path.append("../")
-from neural_network.neural_network import NeuralNetwork
-from neural_network.neural_network_regressor import NeuralNetworkRegressor
+from models.neural_network import NeuralNetwork
+from models.neural_network_regressor import NeuralNetworkRegressor
 from functions.runge import runge
 
 def test_mse():

@@ -1,7 +1,7 @@
 import numpy as np
 import sys
 sys.path.append("../")
-from neural_network.neural_network import NeuralNetwork
+from models.neural_network import NeuralNetwork
 from collections.abc import Callable
 from sklearn.base import BaseEstimator, RegressorMixin
 
@@ -132,6 +132,29 @@ class NeuralNetworkRegressor(BaseEstimator, RegressorMixin):
             Predictions
         """
         return self.nn_.predict(X)
+
+    def mse(
+            self,
+            X: np.ndarray,
+            y: np.ndarray
+        ) -> np.ndarray:
+        """
+        Calculates sample MSE
+
+        Params
+        ------
+        x : ndarray
+            Input values for prediction
+        y : ndarray
+            Target values
+
+        Returns
+        -------
+        mse : float
+            Mean square error
+        """
+        pred = self.predict(X)
+        return np.mean((pred - y)**2)
 
     def optimiser_step(
             self,
