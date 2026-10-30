@@ -2,6 +2,8 @@
 
 ## TODO
 
+### ALL BACKEND STUFF IS FINISHED
+
 ### Part a)
 
 #### Backend
@@ -27,7 +29,7 @@
 - ~~Implement Runge function~~
 - ~~Write feed forward neural network code for regression problem with number of layers, nodes and activation functions as parameters. Initialize weights using normal distribution. Initialize biases using a small non-zero positive value.~~
 - ~~Implement back propagation algorithm for computing gradient of neural network.~~
-- Make gradient descent methods work with neural network cost function.
+- ~~Make gradient descent methods work with neural network cost function.~~
 
 #### Frontend
 - Train feed forward neural network on Runge function, and compare with OLS regression from project 1. Use single input for x-value, and single output for y-value, with sigmoid on the last layer. Can possibly compare with using ReLU on the last layer as well. When comparing with project 1, use the data sets and polynomial order which gave the best MSE score in project 1. Compare using a neural network with one and two hidden layers using 50 and 100 nodes, respectively. Test stochastic and non-stochastic gradient descent with RMSprop, Adam, and plain gradient descent with different learning rates.
