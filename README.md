@@ -26,7 +26,7 @@
 #### Backend
 - ~~Implement Runge function~~
 - ~~Write feed forward neural network code for regression problem with number of layers, nodes and activation functions as parameters. Initialize weights using normal distribution. Initialize biases using a small non-zero positive value.~~
-- Implement back propagation algorithm for computing gradient of neural network.
+- ~~Implement back propagation algorithm for computing gradient of neural network.~~
 - Make gradient descent methods work with neural network cost function.
 
 #### Frontend
