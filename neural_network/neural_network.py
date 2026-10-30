@@ -4,18 +4,39 @@ import jax.numpy as jnp
 import sys
 sys.path.append("../")
 from functions.activation_functions import ReLU
+from collections.abc import Callable
 jax.config.update("jax_enable_x64", True)
 
 class NeuralNetwork:
+    """
+    Class representing a neural network.
+
+    Params
+    ------
+    network_input_size : int
+        The number of inputs to the network
+    layer_output_sizes : list[int]
+        Ordered list of number of outputs of every layer
+    activation_funcs : list[Callable]
+        Ordered list of activation function of every layer
+    activation_ders : list[Callable]
+        Ordered list of derivatvie of activation function of every layer
+    cost_fun : Callable
+        Cost function for model evaluation
+    cost_det : Callable
+        Derivative of cost function
+    rng : Generator
+        Numpy random number generator (default = numpy.random.default_rng(2026))
+    """
     def __init__(
             self,
-            network_input_size,
-            layer_output_sizes,
-            activation_funcs,
-            activation_ders,
-            cost_fun,
-            cost_der,
-            rng = np.random.default_rng(2026)
+            network_input_size: int,
+            layer_output_sizes: list[int],
+            activation_funcs: list[Callable],
+            activation_ders: list[Callable],
+            cost_fun: Callable,
+            cost_der: Callable,
+            rng: np.random.Generator = np.random.default_rng(2026)
         ):
         self.network_input_size = network_input_size
         self.layer_output_sizes = layer_output_sizes
@@ -25,7 +46,16 @@ class NeuralNetwork:
         self.cost_der = cost_der
         self.rng = rng
 
-    def create_layers(
+    def initialize_layers(self) -> None:
+        """
+        Allocates and randomly initializes layers
+        """
+        self.layers_ = self._create_layers(
+            self.network_input_size,
+            self.layer_output_sizes
+        )
+
+    def _create_layers(
             self,
             network_input_size: int,
             layer_output_sizes: list[int]

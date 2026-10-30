@@ -274,7 +274,7 @@ def test_NN_create_layers():
     layer_output_sizes = rng.integers(1, 20, n_layers)
     activation_funcs = [ReLU for _ in range(n_layers)]
     nn = NeuralNetwork(network_input_size, layer_output_sizes, activation_funcs, None, None, None)
-    nn.layers_ = nn.create_layers(network_input_size, layer_output_sizes)
+    nn.layers_ = nn._create_layers(network_input_size, layer_output_sizes)
     expected = [((network_input_size, layer_output_sizes[0]), layer_output_sizes[0])]
     expected += [((layer_output_sizes[i], layer_output_sizes[i+1]), layer_output_sizes[i+1]) for i in range(n_layers-1)]
     computed = []
@@ -337,7 +337,7 @@ def test_NN_cost():
     inputs = rng.normal(size=(100, network_input_size))
     targets = runge(inputs)
     nn = NeuralNetwork(network_input_size, layer_output_sizes, activation_funcs, None, mse, None)
-    nn.layers_ = nn.create_layers(network_input_size, layer_output_sizes)
+    nn.layers_ = nn._create_layers(network_input_size, layer_output_sizes)
     computed = nn.cost(inputs, targets)
     predicts = nn.predict(inputs)
     expected = mse(predicts, targets)
@@ -440,7 +440,7 @@ def test_NN_compute_gradient():
     y = runge(x)
 
     nn = NeuralNetwork(network_input_size, layer_output_sizes, activation_funcs, activation_ders, mse_jax, mse_der)
-    nn.layers_ = nn.create_layers(network_input_size, layer_output_sizes)
+    nn.layers_ = nn._create_layers(network_input_size, layer_output_sizes)
     computed = nn.compute_gradient(x, y)
     cost_grad = jax.grad(nn.jax_compliant_cost, argnums=0)
     expected = cost_grad(
@@ -508,7 +508,7 @@ def test_update_weights():
     y = runge(x)
 
     nn = NeuralNetwork(network_input_size, layer_output_sizes, activation_funcs, activation_ders, mse_jax, mse_der)
-    nn.layers_ = nn.create_layers(network_input_size, layer_output_sizes)
+    nn.layers_ = nn._create_layers(network_input_size, layer_output_sizes)
     layer_grads = nn.compute_gradient(x, y)
 
     for gamma in gammas:
