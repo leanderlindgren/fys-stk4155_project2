@@ -24,9 +24,9 @@
 ### Part b)
 
 #### Backend
-- Implement Runge function
-- Write feed forward neural network code for regression problem with number of layers, nodes and activation functions as parameters. Initialize weights using normal distribution. Initialize biases using a small non-zero positive value.
-- Implement back propagation algorithm for computing gradient of neural network.
+- ~~Implement Runge function~~
+- ~~Write feed forward neural network code for regression problem with number of layers, nodes and activation functions as parameters. Initialize weights using normal distribution. Initialize biases using a small non-zero positive value.~~
+- ~~Implement back propagation algorithm for computing gradient of neural network.~~
 - Make gradient descent methods work with neural network cost function.
 
 #### Frontend
@@ -52,7 +52,7 @@
 ### Part d)
 
 #### Backend
-- Implement ridge and lasso penalties with hyperparameters $\lambda$.
+- ~~Implement ridge and lasso penalties with hyperparameters $\lambda$.~~
 
 #### Frontend
 - Find optimal results for hyperparameters $\lambda$ and learning rates $\gamma$ and neural network architecture and compare $L_2$ results with ridge regression and $L_1$ results with lasso from project 1. Use the same data sets for the comparisons.
@@ -63,7 +63,7 @@
 ### Part e)
 
 #### Backend
-- Implement logistic regression for classification problems.
+- ~~Implement logistic regression for classification problems.~~ This one is technically already done since logistic regression is the same as a neural network with no hidden layers and sigmoid activation function.
 
 #### Frontend
 - Load MNIST data set ($70 \ 000$ images of $28 \times 28$ pixels) ($60 \ 000$ training images and $10 \ 000$ test images).
