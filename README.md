@@ -1,8 +1,8 @@
 # fys-stk4155_project2
 
-## ALL BACKEND STUFF IS FINISHED
-
 ## TODO
+
+### ALL BACKEND STUFF IS FINISHED
 
 ### Part a)
 
