@@ -43,8 +43,8 @@
 #### Backend
 
 #### Frontend
-- Test different activation functions for hidden layers (Sigmoid, ReLU, leaky ReLU).
-- Test results as functions of number of hidden layers and nodes.
+- ~~Test different activation functions for hidden layers (Sigmoid, ReLU, leaky ReLU).~~
+- ~~Test results as functions of number of hidden layers and nodes.~~
 
 #### Report
 - Discuss results of activation functions, and number of hidden layers and nodes.
