@@ -32,8 +32,8 @@
 - ~~Make gradient descent methods work with neural network cost function.~~
 
 #### Frontend
-- Train feed forward neural network on Runge function, and compare with OLS regression from project 1. Use single input for x-value, and single output for y-value, with sigmoid on the last layer. Can possibly compare with using ReLU on the last layer as well. When comparing with project 1, use the data sets and polynomial order which gave the best MSE score in project 1. Compare using a neural network with one and two hidden layers using 50 and 100 nodes, respectively. Test stochastic and non-stochastic gradient descent with RMSprop, Adam, and plain gradient descent with different learning rates.
-- Remember to scale data.
+- ~~Train feed forward neural network on Runge function, and compare with OLS regression from project 1. Use single input for x-value, and single output for y-value, with sigmoid on the last layer. Can possibly compare with using ReLU on the last layer as well. When comparing with project 1, use the data sets and polynomial order which gave the best MSE score in project 1. Compare using a neural network with one and two hidden layers using 50 and 100 nodes, respectively. Test stochastic and non-stochastic gradient descent with RMSprop, Adam, and plain gradient descent with different learning rates.~~
+- ~~Remember to scale data.~~
 
 #### Report
 - Comment on results and give critical discussion of the results obtained with the OLS code from project 1 and our own neural network code. Make analysis of the learning rates employed to find the optimal MSE score.
