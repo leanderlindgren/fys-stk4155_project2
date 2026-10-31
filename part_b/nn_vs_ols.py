@@ -37,7 +37,6 @@ def plot_nn_vs_ols(n, r, gammas, epochs, layer_output_sizes, activation_funcs, a
 
     # Neural network
     methods = ["Plain", "RMSProp", "Adam"]
-    epochs = 100
     for method in methods:
         errs_stoch = []
         errs_nonstoch = []
