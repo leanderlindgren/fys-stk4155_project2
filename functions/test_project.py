@@ -9,6 +9,9 @@ import sys
 sys.path.append("../")
 from models.neural_network import NeuralNetwork
 from models.neural_network_regressor import NeuralNetworkRegressor
+from models.ridge import Ridge
+from sklearn.linear_model import Ridge as sk_Ridge
+from sklearn.preprocessing import StandardScaler
 from functions.runge import runge
 
 def test_mse():
@@ -730,6 +733,43 @@ def test_NNR_fit():
     msg = f"Adam gradient descent gave MSE {err} not sufficiently low"
     assert err < 1e-3, msg
 
+def test_Ridge():
+    """
+    Test that the Ridge class is properly implemented by comparing with sklearn
+    """
+    rng = np.random.default_rng(2026)
+    x = np.linspace(-1, 1, 100).reshape(-1, 1)
+    y = runge(x) + rng.normal(size=(100)).reshape(-1, 1)
+
+    model = Ridge(1, 8).fit(x, y)
+    computed = model.intercept_
+    expected = y.mean()
+
+    msg = f"Computed intercept {computed} does not equal expected intercept {expected}"
+    assert abs(expected - computed) < 1e-12, msg
+
+    computed = model.coef_
+
+    X = np.vander(x.ravel(), 9, increasing=True)[:, 1:]
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    model_sk = sk_Ridge(1, fit_intercept=True).fit(X_scaled, y)
+    expected = model_sk.coef_
+
+    msg = f"Computed coefs {computed} do not equal expected coefs {expected}"
+    assert np.linalg.norm(expected - computed) < 1e-12, msg
+    
+    x_test = np.linspace(-1, 1, 10).reshape(-1, 1)
+    X_test = np.vander(x_test.ravel(), 9, increasing=True)[:, 1:]
+    X_test_scaled = scaler.transform(X_test)
+
+    computed = model.predict(x_test)
+    expected = model_sk.predict(X_test_scaled)
+
+    msg = f"Computed predictions {computed} do not equal expected predictions {expected}"
+    assert np.linalg.norm(expected - computed) < 1e-12, msg
+
 
 if __name__ == "__main__":
     test_mse()
@@ -754,4 +794,5 @@ if __name__ == "__main__":
     test_NNR_split_minibatches()
     test_NNR_optimiser_step()
     test_NNR_fit()
+    test_Ridge()
     print("All tests passed!")

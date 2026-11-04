@@ -10,6 +10,14 @@ def OLS_closed_form(
     ) -> np.ndarray:
     return np.linalg.lstsq(X, y)[0]
 
+def Ridge_closed_form(
+        X: np.ndarray,
+        y: np.ndarray,
+        lmbd: float
+    ) -> np.ndarray:
+    d = X.shape[1]
+    return np.linalg.lstsq(X.T@X + lmbd*np.eye(d), X.T@y)[0]
+
 def descent_OLS(X,y,theta_target, gamma, maxs, n, n_features, num_iters=1000):
     distances_OLS = []
     theta_gdOLS = np.zeros(n_features)

@@ -1,5 +1,4 @@
 import numpy as np
-from types import NoneType
 from functions.linear_regression import OLS_closed_form
 from sklearn.preprocessing import StandardScaler, PolynomialFeatures
 from sklearn.pipeline import make_pipeline
@@ -27,7 +26,7 @@ class OLS(BaseEstimator, RegressorMixin):
         X_scaled = self.pipeline.fit_transform(x.reshape(-1, 1))
         self.intercept_ = y.mean()
         y_centered = y - y.mean()
-        self.coef_ = OLS_closed_form(X_scaled, y_centered)
+        self.coef_ = OLS_closed_form(X_scaled, y_centered).ravel()
         return self
 
     def predict(
