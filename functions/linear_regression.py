@@ -8,6 +8,10 @@ def OLS_closed_form(
         X: np.ndarray,
         y: np.ndarray
     ) -> np.ndarray:
+
+    print("X shape:", X.shape)
+    print("y shape:", y.shape)
+    
     return np.linalg.lstsq(X, y)[0]
 
 def Ridge_closed_form(

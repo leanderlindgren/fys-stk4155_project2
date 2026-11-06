@@ -1,7 +1,7 @@
 #our functions
 import functions.activation_functions as activ_funcs
 import functions.linear_regression as line_reg
-import functions.score_analysis as scores
+import functions.cost_functions as cost
 
 #python functions
 import numpy as np
@@ -28,7 +28,7 @@ def feed_forward_batch(inputs, layers, activation_funcs):
 
 def cost(input, layers, activation_funcs, target):
     predict = feed_forward_batch(input, layers, activation_funcs)
-    return cross_entropy(predict, target)
+    return cost.cross_entropy(predict, target)
 
 def create_layers_batch(network_input_size, layer_output_sizes):
     layers = []

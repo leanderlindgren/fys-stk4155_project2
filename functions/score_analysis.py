@@ -1,8 +1,9 @@
-def MSE(x, y, seed n_bootstraps, maxdegree):
+import sys
+sys.path.append("../")
+import numpy as np
+from sklearn.linear_model import LogisticRegression
 
-    #test_size 0.2 because we're reserving 20% of the data for testing
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2,
-                                                        seed)
+def MSE(x, y, seed, n_bootstraps, maxdegree):
 
     error = np.zeros(maxdegree)
     bias = np.zeros(maxdegree)

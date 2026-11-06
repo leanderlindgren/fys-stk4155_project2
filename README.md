@@ -68,12 +68,12 @@
 - ~~Implement logistic regression for classification problems.~~ This one is technically already done since logistic regression is the same as a neural network with no hidden layers and sigmoid activation function.
 
 #### Frontend
-- Load MNIST data set ($70 \ 000$ images of $28 \times 28$ pixels) ($60 \ 000$ training images and $10 \ 000$ test images).
-- Rescale the pixel values to the interval $[0, 1]$.
-- All training, model selection and tuning of hyperparameters is done on the training data only (use validation set or cross-validation).
-- Measure performance using accuracy score, $\text{Accuracy} = \frac{\Sigma_{i=1}^{n} I(t_i = y_i)}{n}$.
-- Compare neural network code for classification and results against similar code using scikit-learn or TensorFlor/Keras or PyTorch.
-- Compare neural network results with those from logistic regression.
+~~- Load MNIST data set ($70 \ 000$ images of $28 \times 28$ pixels) ($60 \ 000$ training images and $10 \ 000$ test images).~~
+~~- Rescale the pixel values to the interval $[0, 1]$.~~
+~~- All training, model selection and tuning of hyperparameters is done on the training data only (use validation set or cross-validation).~~
+~~- Measure performance using accuracy score, $\text{Accuracy} = \frac{\Sigma_{i=1}^{n} I(t_i = y_i)}{n}$.~~
+~~- Compare neural network code for classification and results against similar code using scikit-learn or TensorFlor/Keras or PyTorch.~~
+~~- Compare neural network results with those from logistic regression.~~
 - Compute confusion matrix of best classification model, as well as precision, recall and $F_1$ score.
 
 #### Report
