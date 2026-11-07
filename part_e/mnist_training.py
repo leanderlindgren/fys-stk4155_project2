@@ -19,6 +19,7 @@ from sklearn.linear_model import LogisticRegression
 from functions.activation_functions import sigmoid, sigmoid_der, softmax
 from functions.cost_functions import cross_entropy, cross_entropy_Lp
 from models.neural_network import NeuralNetwork
+from models.neural_network_classifier import NeuralNetworkClassifier
 
 
 def load_mnist_rows():
@@ -83,42 +84,23 @@ print(x_train.shape, y_train.shape, x_test.shape, y_test.shape)
 # Neural network
 # --------------------------------------------------
 
-nn = NeuralNetwork(
+nn = NeuralNetworkClassifier(
     network_input_size=784,
     layer_output_sizes=[100, 10],
     activation_funcs=[sigmoid, softmax],
     activation_ders=[sigmoid_der, None],
     cost_fun=cross_entropy,
-    cost_der=cross_entropy_Lp
+    cost_der=cross_entropy_Lp,
+    classes=np.arange(10)
 )
 
-nn.initialize_layers()
+nn.fit(x_train, y_train)
 
-epochs = 100
-gamma = 0.01
+pred_labels = nn.classify(x_test)
 
-losses = []
+accuracy = np.mean(pred_labels == y_test)
 
-for epoch in range(epochs):
-
-    grads = nn.compute_gradient(
-        x_train,
-        y_train_onehot
-    )
-
-    nn.update_weights(
-        grads,
-        gamma
-    )
-
-    loss = nn.cost(
-        x_train,
-        y_train_onehot
-    )
-
-    losses.append(loss)
-
-    print(epoch, loss)
+print("Test Accuracy =", accuracy)
 
 # --------------------------------------------------
 # Evaluate NN
