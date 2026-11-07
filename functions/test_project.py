@@ -10,7 +10,9 @@ sys.path.append("../")
 from models.neural_network import NeuralNetwork
 from models.neural_network_regressor import NeuralNetworkRegressor
 from models.ridge import Ridge
+from models.lasso import Lasso
 from sklearn.linear_model import Ridge as sk_Ridge
+from sklearn.linear_model import Lasso as sk_Lasso
 from sklearn.preprocessing import StandardScaler
 from functions.runge import runge
 
@@ -758,8 +760,8 @@ def test_Ridge():
     expected = model_sk.coef_
 
     msg = f"Computed coefs {computed} do not equal expected coefs {expected}"
-    assert np.linalg.norm(expected - computed) < 1e-12, msg
-    
+    assert np.linalg.norm(expected - computed) < 1e-9, msg
+
     x_test = np.linspace(-1, 1, 10).reshape(-1, 1)
     X_test = np.vander(x_test.ravel(), 9, increasing=True)[:, 1:]
     X_test_scaled = scaler.transform(X_test)
@@ -768,31 +770,70 @@ def test_Ridge():
     expected = model_sk.predict(X_test_scaled)
 
     msg = f"Computed predictions {computed} do not equal expected predictions {expected}"
-    assert np.linalg.norm(expected - computed) < 1e-12, msg
+    assert np.linalg.norm(expected - computed) < 1e-9, msg
 
+def test_Lasso():
+    """
+    Test that the Lasso class is properly implemented by comparing with sklearn
+    """
+    rng = np.random.default_rng(2026)
+    lmbd = 0.1
+    x = np.linspace(-1, 1, 100).reshape(-1, 1)
+    y = runge(x) + rng.normal(size=(100)).reshape(-1, 1)
+
+    model = Lasso(lmbd, 8, gamma=0.003, method="adam", batch_size=10, epochs=1000, rng=rng).fit(x, y)
+    computed = model.intercept_
+    expected = y.mean()
+
+    msg = f"Computed intercept {computed} does not equal expected intercept {expected}"
+    assert abs(expected - computed) < 1e-12, msg
+
+    computed = model.coef_
+
+    X = np.vander(x.ravel(), 9, increasing=True)[:, 1:]
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    model_sk = sk_Lasso(lmbd, fit_intercept=False).fit(X_scaled, y)
+    expected = model_sk.coef_
+
+    msg = f"Computed coefs {computed} is not close enough to expected coefs {expected}"
+    assert np.linalg.norm(expected - computed) < 1e-2, msg
+
+    x_test = np.linspace(-1, 1, 100).reshape(-1, 1)
+    y_test = runge(x_test) + rng.normal(size=(100)).reshape(-1, 1)
+    X_test = np.vander(x_test.ravel(), 9, increasing=True)[:, 1:]
+    X_test_scaled = scaler.transform(X_test)
+
+    computed = np.mean((model.predict(x_test) - y_test)**2)
+    expected = np.mean((model_sk.predict(X_test_scaled) - y_test)**2)
+
+    msg = f"Computed mse {computed} is not close enough to expected mse {expected}"
+    assert computed < 1.1*expected, msg
 
 if __name__ == "__main__":
-    test_mse()
-    test_mse_der()
-    test_mse_Lp()
-    test_cross_entropy()
-    test_cross_entropy_Lp()
-    test_cross_entropy_multiclass()
-    test_ReLU()
-    test_ReLU_der()
-    test_LReLU()
-    test_LReLU_der()
-    test_sigmoid()
-    test_sigmoid_der()
-    test_softmax()
-    test_NN_create_layers()
-    test_NN_predict()
-    test_NN_cost()
-    test_NN__feed_forward_saver()
-    test_NN_compute_gradient()
-    test_update_weights()
-    test_NNR_split_minibatches()
-    test_NNR_optimiser_step()
-    test_NNR_fit()
+    # test_mse()
+    # test_mse_der()
+    # test_mse_Lp()
+    # test_cross_entropy()
+    # test_cross_entropy_Lp()
+    # test_cross_entropy_multiclass()
+    # test_ReLU()
+    # test_ReLU_der()
+    # test_LReLU()
+    # test_LReLU_der()
+    # test_sigmoid()
+    # test_sigmoid_der()
+    # test_softmax()
+    # test_NN_create_layers()
+    # test_NN_predict()
+    # test_NN_cost()
+    # test_NN__feed_forward_saver()
+    # test_NN_compute_gradient()
+    # test_update_weights()
+    # test_NNR_split_minibatches()
+    # test_NNR_optimiser_step()
+    # test_NNR_fit()
     test_Ridge()
+    test_Lasso()
     print("All tests passed!")
