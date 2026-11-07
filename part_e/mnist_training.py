@@ -1,149 +1,49 @@
 import sys
-sys.path.append("../")
-import numpy as np
-np.set_printoptions(suppress=True)
-import matplotlib.pyplot as plt
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, classification_report
-from sklearn.linear_model import LogisticRegression
-
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
-from models.ols import OLS
+sys.path.append("../")
+
+import numpy as np
+np.set_printoptions(suppress=True)
+
+import matplotlib.pyplot as plt
+
+from sklearn.metrics import (
+    confusion_matrix,
+    ConfusionMatrixDisplay,
+    classification_report
+)
+from sklearn.linear_model import LogisticRegression
+
 from functions.activation_functions import sigmoid, sigmoid_der, softmax
-from functions.cost_functions import mse, mse_der
-from functions.runge import runge
+from functions.cost_functions import cross_entropy, cross_entropy_Lp
+from models.neural_network import NeuralNetwork
 
-class FFNN:
-    def __init__(
-        self,
-        n_inputs,
-        n_hidden,
-        n_outputs,
-        eta=0.01,
-        lmbda=0.0
-    ):
-
-        self.eta = eta
-        self.lmbda = lmbda
-
-        # Input -> Hidden
-        self.W1 = np.random.randn(n_inputs, n_hidden)
-        self.b1 = np.zeros((1, n_hidden))
-
-        # Hidden -> Output
-        self.W2 = np.random.randn(n_hidden, n_outputs)
-        self.b2 = np.zeros((1, n_outputs))
-
-    def feed_forward(self, X):
-
-            self.z1 = X @ self.W1 + self.b1
-            self.a1 = sigmoid(self.z1)
-
-            self.z2 = self.a1 @ self.W2 + self.b2
-            self.a2 = softmax(self.z2)
-
-            return self.a2
-
-    def predict(self, X):
-
-        outputs = self.feed_forward(X)
-
-        return np.argmax(outputs, axis=1)
-
-    def one_hot(y):
-        return np.eye(10)[y]
-
-    def fit(self, X, y, epochs=20):
-
-        # one-hot encode labels
-        y = np.eye(10)[y]
-
-        for epoch in range(epochs):
-
-            # ---------- feed forward ----------
-            output = self.feed_forward(X)
-
-            # ---------- output layer ----------
-            #delta2 = mse_der(output, y) * softmax(self.z2)
-            delta2 = output - y
-
-            # ---------- hidden layer ----------
-            delta1 = (delta2 @ self.W2.T) * sigmoid_der(self.z1)
-
-            # ---------- gradients ----------
-            n = X.shape[0]
-
-            dW2 = self.a1.T @ delta2 / n + self.lmbda * self.W2
-            db2 = np.sum(delta2, axis=0, keepdims=True) / n
-
-            dW1 = X.T @ delta1 / n + self.lmbda * self.W1
-            db1 = np.sum(delta1, axis=0, keepdims=True) / n
-
-
-            # ---------- gradient descent ----------
-            self.W2 -= self.eta * dW2
-            self.b2 -= self.eta * db2
-
-            self.W1 -= self.eta * dW1
-            self.b1 -= self.eta * db1
-
-            loss = mse(y, output)
-
-            if epoch % 10 == 0:
-                print(f"Epoch {epoch}: loss = {loss}")
-
-def mnist_ffnn(x_train, y_train,
-               x_test, y_test,
-               eta, lmbda,
-               epochs,
-               batch_size,
-               hidden_nodes):
-
-    nn = FFNN(
-        n_inputs=784,
-        n_hidden=hidden_nodes,
-        n_outputs=10,
-        eta=eta,
-        lmbda=lmbda
-    )
-
-    nn.fit(
-        x_train,
-        y_train,
-        epochs=epochs
-    )
-
-    y_pred = nn.predict(x_test)
-
-    acc = np.mean(y_pred == y_test)
-
-    return acc, nn
 
 def load_mnist_rows():
-    with np.load("part_e//mnist.npz") as data:
+    with np.load("part_e/mnist.npz") as data:
         x_train, y_train = data["x_train"], data["y_train"]
-        x_test, y_test = data["x_test"], data["y_test"] 
+        x_test, y_test = data["x_test"], data["y_test"]
 
     print(x_train.shape, y_train.shape, x_test.shape, y_test.shape)
-    # (60000, 28, 28) (60000,) (10000, 28, 28) (10000,)
 
-    #feed forward network takes a vector input, 
-    # so we flatten the vector of the input to 784 features 
-    # and scale the pixel value to the vector |0,1|
     x_train = x_train.reshape(len(x_train), -1) / 255.0
     x_test = x_test.reshape(len(x_test), -1) / 255.0
 
-    return (x_train, y_train, x_test, y_test)
+    return x_train, y_train, x_test, y_test
+
 
 def mnist_accuracy(y_true, y_pred):
     return np.mean(y_true == y_pred)
+
 
 def mnist_log_ref(xtr, xte, ytr, yte, lambdas):
 
     log_acc = []
 
     for lmbda in lambdas:
+
         print(f"Starting lambda = {lmbda:.1e}")
 
         model = LogisticRegression(
@@ -165,107 +65,126 @@ def mnist_log_ref(xtr, xte, ytr, yte, lambdas):
     return log_acc
 
 
-best_acc = 0
-best_eta = None
-best_lmbda = None
-best_model = None
+# --------------------------------------------------
+# Load data
+# --------------------------------------------------
 
-xtr, ytr, xte, yte = load_mnist_rows()
-print(xtr.shape, ytr.shape, xte.shape, yte.shape)
+randnum = 2026
+np.random.seed(randnum)
 
-nn = FFNN(
-    n_inputs=784,
-    n_hidden=50,
-    n_outputs=10
+x_train, y_train, x_test, y_test = load_mnist_rows()
+
+y_train_onehot = np.eye(10)[y_train]
+y_test_onehot = np.eye(10)[y_test]
+
+print(x_train.shape, y_train.shape, x_test.shape, y_test.shape)
+
+# --------------------------------------------------
+# Neural network
+# --------------------------------------------------
+
+nn = NeuralNetwork(
+    network_input_size=784,
+    layer_output_sizes=[100, 10],
+    activation_funcs=[sigmoid, softmax],
+    activation_ders=[sigmoid_der, None],
+    cost_fun=cross_entropy,
+    cost_der=cross_entropy_Lp
 )
 
-pred = nn.predict(xte)
+nn.initialize_layers()
 
-print(pred.shape)
+epochs = 100
+gamma = 0.01
 
-accuracy = mnist_accuracy(yte, pred)
-print(accuracy)
+losses = []
 
-etas = np.logspace(-4, 0, 5)
-lambdas = np.logspace(-5, -1, 5)
+for epoch in range(epochs):
 
-accuracy = np.zeros((len(etas), len(lambdas)))
+    grads = nn.compute_gradient(
+        x_train,
+        y_train_onehot
+    )
 
-for i, eta in enumerate(etas):
-    for j, lmbda in enumerate(lambdas):
+    nn.update_weights(
+        grads,
+        gamma
+    )
 
-        acc, model = mnist_ffnn(
-            xtr, ytr,
-            xte, yte,
-            eta=eta,
-            lmbda=lmbda,
-            epochs=100,
-            batch_size=100,
-            hidden_nodes=100
-        )
+    loss = nn.cost(
+        x_train,
+        y_train_onehot
+    )
 
-        if acc > best_acc:
-            best_acc = acc
-            best_eta = eta
-            best_lmbda = lmbda
-            best_model = model
+    losses.append(loss)
 
-        accuracy[i, j] = acc
+    print(epoch, loss)
 
-fig, ax = plt.subplots(figsize=(8,6))
+# --------------------------------------------------
+# Evaluate NN
+# --------------------------------------------------
 
-im = ax.imshow(
-    accuracy,
-    cmap="viridis",
-    origin="lower"
-)
+pred = nn.predict(x_test)
 
-ax.set_xticks(range(len(lambdas)))
-ax.set_xticklabels([f"{x:.0e}" for x in lambdas])
+pred_labels = np.argmax(pred, axis=1)
 
-ax.set_yticks(range(len(etas)))
-ax.set_yticklabels([f"{x:.0e}" for x in etas])
+accuracy = np.mean(pred_labels == y_test)
 
-ax.set_xlabel(r"$\lambda$")
-ax.set_ylabel(r"$\eta$")
-ax.set_title("MNIST Classification Accuracy")
+print("Test Accuracy =", accuracy)
 
-plt.colorbar(im, label="Accuracy")
-
-plt.tight_layout()
-plt.savefig("results/mnist_accuracy_heatmap.png", dpi=300)
-
-plt.show()
-
-print("best accuracy", best_acc)
-print("best eta", best_eta)
-print("best lmbda", best_lmbda)
-
-best_pred = best_model.predict(xte)
-
-cm = confusion_matrix(yte, best_pred)
+cm = confusion_matrix(y_test, pred_labels)
 
 disp = ConfusionMatrixDisplay(confusion_matrix=cm)
 disp.plot(cmap="Blues")
 
-plt.title("Confusion Matrix for Best FFNN")
+plt.title("Confusion Matrix")
 plt.savefig("results/mnist_confusion_matrix.png", dpi=300)
 plt.show()
 
+print("\nClassification Report (Precision, Recall, F1-Score):")
+print(
+    classification_report(
+        y_test,
+        pred_labels,
+        digits=4
+    )
+)
+
+# --------------------------------------------------
+# Loss curve
+# --------------------------------------------------
+
+plt.figure(figsize=(8, 6))
+plt.plot(losses)
+plt.xlabel("Epoch")
+plt.ylabel("Cross Entropy Loss")
+plt.title("Neural Network Training Loss")
+plt.grid(True)
+plt.savefig("results/mnist_loss.png", dpi=300)
+plt.show()
+
+# --------------------------------------------------
+# Logistic Regression comparison
+# --------------------------------------------------
+
+lambdas = np.logspace(-5, -1, 5)
+
 print("Starting logistic regression")
-log_acc = mnist_log_ref(xtr, xte, ytr, yte, lambdas)
+
+log_acc = mnist_log_ref(
+    x_train,
+    x_test,
+    y_train,
+    y_test,
+    lambdas
+)
+
 print("Finished logistic regression")
 
-plt.figure(figsize=(6,4))
-
+plt.figure(figsize=(6, 4))
 plt.semilogx(lambdas, log_acc, "o-")
-
 plt.xlabel(r"$\lambda$")
 plt.ylabel("Accuracy")
 plt.title("Logistic Regression Accuracy on MNIST")
-
 plt.savefig("results/mnist_logistic_accuracy.png", dpi=300)
 plt.show()
-
-print("\nClassification Report (Precision, Recall, F1-Score):")
-print(classification_report(yte, best_pred, digits=4))
