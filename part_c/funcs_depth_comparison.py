@@ -90,8 +90,8 @@ r = 0.25
 epochs=100
 layer_sizes = [10, 25, 50, 100, 500]
 
-plot_heatmap(n, r, epochs, [1, 2, 3, 5, 10], layer_sizes, sigmoid, sigmoid_der, "MSE of Neural Network with Sigmoid Activation Functions", "..//results//sigmoid_heatmap.png", rng)
+plot_heatmap(n, r, epochs, [1, 2, 3, 5, 10], layer_sizes, sigmoid, sigmoid_der, "MSE of Neural Network with Sigmoid Activation Functions", "results/sigmoid_heatmap.png", rng)
 rng = np.random.default_rng(2026)
-plot_heatmap(n, r, epochs, [1, 2, 3, 5, 10], layer_sizes, ReLU, ReLU_der, "MSE of Neural Network with ReLU Activation Functions", "..//results//relu_heatmap.png", rng)
+plot_heatmap(n, r, epochs, [1, 2, 3, 5, 10], layer_sizes, ReLU, ReLU_der, "MSE of Neural Network with ReLU Activation Functions", "results/relu_heatmap.png", rng)
 rng = np.random.default_rng(2026)
-plot_heatmap(n, r, epochs, [1, 2, 3, 5, 10], layer_sizes, LReLU, LReLU_der, "MSE of Neural Network with Leaky ReLU Activation Functions", "..//results//lrelu_heatmap.png", rng)
+plot_heatmap(n, r, epochs, [1, 2, 3, 5, 10], layer_sizes, LReLU, LReLU_der, "MSE of Neural Network with Leaky ReLU Activation Functions", "results/lrelu_heatmap.png", rng)

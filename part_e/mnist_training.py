@@ -4,6 +4,8 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 sys.path.append("../")
 
+from part_c.funcs_depth_comparison import plot_heatmap
+
 import numpy as np
 np.set_printoptions(suppress=True)
 
@@ -136,14 +138,14 @@ print(
 # Loss curve
 # --------------------------------------------------
 
-plt.figure(figsize=(8, 6))
-plt.plot(losses)
-plt.xlabel("Epoch")
-plt.ylabel("Cross Entropy Loss")
-plt.title("Neural Network Training Loss")
-plt.grid(True)
-plt.savefig("results/mnist_loss.png", dpi=300)
-plt.show()
+#plt.figure(figsize=(8, 6))
+#plt.plot(losses)
+#plt.xlabel("Epoch")
+#plt.ylabel("Cross Entropy Loss")
+#plt.title("Neural Network Training Loss")
+#plt.grid(True)
+#plt.savefig("results/mnist_loss.png", dpi=300)
+#plt.show()
 
 # --------------------------------------------------
 # Logistic Regression comparison
@@ -170,3 +172,9 @@ plt.ylabel("Accuracy")
 plt.title("Logistic Regression Accuracy on MNIST")
 plt.savefig("results/mnist_logistic_accuracy.png", dpi=300)
 plt.show()
+
+n = 100
+r = 0.25
+epochs=100
+rng = np.random.default_rng(2026)
+plot_heatmap(n, r, epochs, [1, 2, 3, 5, 10], [100, 10], sigmoid, sigmoid_der, "MNIST Accuracy Heatmap", "results/mnist_accuracy_heatmap.png", rng)
