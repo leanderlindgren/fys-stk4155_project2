@@ -43,31 +43,7 @@ def plot_heatmap(n, r, epochs, layer_depths, layer_sizes, activation_func, activ
             errs[i, j] = net.mse(x_test, y_test)
 
     fig, ax = plt.subplots()
-    segmentdata = {
-        'red':   [(0.0, 0.0, 0.0),
-                (0.5, 1.0, 1.0),
-                (1.0, 1.0, 1.0)],
-        'green': [(0.0, 1.0, 0.75),
-                (0.5, 1.0, 1.0),
-                (1.0, 0.0, 0.0)],
-        'blue':  [(0.0, 0.0, 0.0),
-                (0.5, 0.0, 0.0),
-                (1.0, 0.0, 0.0)]
-    }
-    segmentdata = {
-        'red':   [(0.0, 0.0, 0.0),
-                (0.5, 1.0, 1.0),
-                (1.0, 1.0, 0.0)],
-        'green': [(0.0, 0.0, 0.75),
-                (0.5, 1.0, 1.0),
-                (1.0, 0.0, 0.0)],
-        'blue':  [(0.0, 0.0, 0.0),
-                (0.5, 0.0, 0.0),
-                (1.0, 0.0, 0.0)]
-    }
-    # I hope whoever is looking at these figures is not red-green colorblind!
-    cmap = mpl.colors.LinearSegmentedColormap(name="GrYlRd", segmentdata=segmentdata)
-    im = ax.imshow(errs, cmap=cmap)
+    im = ax.imshow(errs, cmap="viridis_r")
     ax.set_xticks(range(len(layer_depths)), labels=layer_depths)
     ax.set_yticks(range(len(layer_sizes)), labels=layer_sizes)
     errs_round = np.round(errs, 3)
@@ -82,16 +58,18 @@ def plot_heatmap(n, r, epochs, layer_depths, layer_sizes, activation_func, activ
     fig.tight_layout()
     fig.savefig(filename)
 
-rng = np.random.default_rng(2026)
-gammas = np.logspace(-4, 0, 9)
-n = 100
-r = 0.25
-# Only 100 epochs, so script can finish before heat death of the universe
-epochs=100
-layer_sizes = [10, 25, 50, 100, 500]
+if __name__ == "__main__":
+    rng = np.random.default_rng(2026)
+    gammas = np.logspace(-4, 0, 9)
+    n = 100
+    r = 0.25
+    # Only 100 epochs, so script can finish before heat death of the universe
+    # Also, using only 100 epochs makes bias/variance trade-off more visible
+    epochs=100
+    layer_sizes = [10, 25, 50, 100, 500]
 
-plot_heatmap(n, r, epochs, [1, 2, 3, 5, 10], layer_sizes, sigmoid, sigmoid_der, "MSE of Neural Network with Sigmoid Activation Functions", "results/sigmoid_heatmap.png", rng)
-rng = np.random.default_rng(2026)
-plot_heatmap(n, r, epochs, [1, 2, 3, 5, 10], layer_sizes, ReLU, ReLU_der, "MSE of Neural Network with ReLU Activation Functions", "results/relu_heatmap.png", rng)
-rng = np.random.default_rng(2026)
-plot_heatmap(n, r, epochs, [1, 2, 3, 5, 10], layer_sizes, LReLU, LReLU_der, "MSE of Neural Network with Leaky ReLU Activation Functions", "results/lrelu_heatmap.png", rng)
+    plot_heatmap(n, r, epochs, [1, 2, 3, 5, 10], layer_sizes, sigmoid, sigmoid_der, "MSE of Neural Network with Sigmoid Activation Functions", "../results/sigmoid_heatmap.png", rng)
+    rng = np.random.default_rng(2026)
+    plot_heatmap(n, r, epochs, [1, 2, 3, 5, 10], layer_sizes, ReLU, ReLU_der, "MSE of Neural Network with ReLU Activation Functions", "../results/relu_heatmap.png", rng)
+    rng = np.random.default_rng(2026)
+    plot_heatmap(n, r, epochs, [1, 2, 3, 5, 10], layer_sizes, LReLU, LReLU_der, "MSE of Neural Network with Leaky ReLU Activation Functions", "../results/lrelu_heatmap.png", rng)
