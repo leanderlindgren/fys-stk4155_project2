@@ -225,6 +225,7 @@ class NeuralNetwork:
             if i == len(layers) - 1:
                 # For last layer we use cost derivative as dC_da(L) can be computed directly
                 if activation_der == None:
+                    # Softmax/cross entropy (non-binary classification)
                     dC_dz = predicts - targets
                 else:
                     dC_da = self.cost_der(predicts, targets)
