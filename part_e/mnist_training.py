@@ -4,6 +4,8 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 sys.path.append("../")
 
+from part_c.funcs_depth_comparison import plot_heatmap
+
 import numpy as np
 np.set_printoptions(suppress=True)
 
@@ -19,6 +21,7 @@ from sklearn.linear_model import LogisticRegression
 from functions.activation_functions import sigmoid, sigmoid_der, softmax
 from functions.cost_functions import cross_entropy, cross_entropy_Lp
 from models.neural_network import NeuralNetwork
+from models.neural_network_classifier import NeuralNetworkClassifier
 
 
 def load_mnist_rows():
@@ -83,42 +86,23 @@ print(x_train.shape, y_train.shape, x_test.shape, y_test.shape)
 # Neural network
 # --------------------------------------------------
 
-nn = NeuralNetwork(
+nn = NeuralNetworkClassifier(
     network_input_size=784,
     layer_output_sizes=[100, 10],
     activation_funcs=[sigmoid, softmax],
     activation_ders=[sigmoid_der, None],
     cost_fun=cross_entropy,
-    cost_der=cross_entropy_Lp
+    cost_der=cross_entropy_Lp,
+    classes=np.arange(10)
 )
 
-nn.initialize_layers()
+nn.fit(x_train, y_train)
 
-epochs = 100
-gamma = 0.01
+pred_labels = nn.classify(x_test)
 
-losses = []
+accuracy = np.mean(pred_labels == y_test)
 
-for epoch in range(epochs):
-
-    grads = nn.compute_gradient(
-        x_train,
-        y_train_onehot
-    )
-
-    nn.update_weights(
-        grads,
-        gamma
-    )
-
-    loss = nn.cost(
-        x_train,
-        y_train_onehot
-    )
-
-    losses.append(loss)
-
-    print(epoch, loss)
+print("Test Accuracy =", accuracy)
 
 # --------------------------------------------------
 # Evaluate NN
@@ -154,14 +138,14 @@ print(
 # Loss curve
 # --------------------------------------------------
 
-plt.figure(figsize=(8, 6))
-plt.plot(losses)
-plt.xlabel("Epoch")
-plt.ylabel("Cross Entropy Loss")
-plt.title("Neural Network Training Loss")
-plt.grid(True)
-plt.savefig("results/mnist_loss.png", dpi=300)
-plt.show()
+#plt.figure(figsize=(8, 6))
+#plt.plot(losses)
+#plt.xlabel("Epoch")
+#plt.ylabel("Cross Entropy Loss")
+#plt.title("Neural Network Training Loss")
+#plt.grid(True)
+#plt.savefig("results/mnist_loss.png", dpi=300)
+#plt.show()
 
 # --------------------------------------------------
 # Logistic Regression comparison
@@ -188,3 +172,9 @@ plt.ylabel("Accuracy")
 plt.title("Logistic Regression Accuracy on MNIST")
 plt.savefig("results/mnist_logistic_accuracy.png", dpi=300)
 plt.show()
+
+n = 100
+r = 0.25
+epochs=100
+rng = np.random.default_rng(2026)
+plot_heatmap(n, r, epochs, [1, 2, 3, 5, 10], [100, 10], sigmoid, sigmoid_der, "MNIST Accuracy Heatmap", "results/mnist_accuracy_heatmap.png", rng)
