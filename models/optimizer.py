@@ -119,7 +119,7 @@ class Optimizer:
         minibatches : list[tuple[ndarray, ndarray]]
             List of tuples of inputs and outputs
         """
-        n = len(targets)
+        n = inputs.shape[0]
         # Resample data in case n is not divisible by batch size
         if n%self.batch_size:
             num_resample = self.batch_size - n%self.batch_size
