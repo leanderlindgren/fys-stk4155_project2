@@ -111,7 +111,7 @@ def plot_heatmap_lasso(n, r, epochs, gammas, lambdas, title1, title2, filename, 
                 activation_ders=activation_ders,
                 cost_fun=mse,
                 cost_der=mse_der,
-                lmbd2=lmbd,
+                lmbd1=lmbd,
                 gamma=gamma,
                 epochs=epochs,
                 batch_size=10,
@@ -138,7 +138,7 @@ def plot_heatmap_lasso(n, r, epochs, gammas, lambdas, title1, title2, filename, 
             text = net_ax.text(j, i, errs_round[i, j],
                         ha="center", va="center", color="k")
     net_ax.set_xlabel("Learning rate $\\gamma$")
-    net_ax.set_ylabel("$L^2$ penalty $\\lambda$")
+    net_ax.set_ylabel("$L^1$ penalty $\\lambda$")
     net_ax.set_title(title1)
 
     lasso_ax: Axes = plt.subplot(gs[1])
