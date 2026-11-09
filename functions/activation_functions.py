@@ -68,6 +68,9 @@ def sigmoid_jax(z: jnp.ndarray) -> jnp.ndarray:
     as it can be slower than the version that uses numpy instead.
     """
     # We use this method to avoid instability for large negative values
+    # A bit slower when z has few values,
+    # but almost as fast when z has many values (from limited testing)
+    # Loosely inspired by https://stackoverflow.com/a/64717799 (Accessed: 2026-10-25)
     negative = z < 0
     return abs(negative - (1 / (1 + jnp.exp(-abs(z)))))
 
@@ -195,6 +198,7 @@ def sigmoid(z: np.ndarray) -> np.ndarray:
     # We use this method to avoid instability for large negative values
     # A bit slower when z has few values,
     # but almost as fast when z has many values (from limited testing)
+    # Loosely inspired by https://stackoverflow.com/a/64717799 (Accessed: 2026-10-25)
     negative = z < 0
     return abs(negative - (1 / (1 + np.exp(-abs(z)))))
 
